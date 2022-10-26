@@ -1,9 +1,9 @@
 import { Platform } from "react-native";
 
 // ***** TODO: Fill in your constants here ***** //
-const CLIENT_ID = "";
-const REDIRECT_URI = "";
-const ALBUM_ID = "2nLOHgzXzwFEpl62zAgCEC?si=92gvi84ZTLKfMD-YgYWAUw"; // By default, this is the Weeknd's Album's "DAWN FM"
+const CLIENT_ID = "6f0926d3c2a6492bb986a0b6f3a4dc3f";
+const REDIRECT_URI = "exp://192.168.86.25:19000";
+const ALBUM_ID = "1RScj9twEYe8ZOr8kUiQ62?si=4209d91c24e544a3"; // Midnights, Taylor Swift
 // ********************************************* //
 
 const redirectUri = (uri) => {
@@ -30,7 +30,7 @@ const ENV = {
     "user-read-private",
   ],
   REDIRECT_URI: redirectUri(REDIRECT_URI),
-  ALBUM_ID: "2nLOHgzXzwFEpl62zAgCEC?si=92gvi84ZTLKfMD-YgYWAUw",
+  ALBUM_ID: "151w1FgRZfnKZA9FEcg9Z3?si=aT4kg8OTTqaNdA2JpGSdrA",
   SPOTIFY_API: {
     // Endpoints for auth & token flow
     DISCOVERY: {
