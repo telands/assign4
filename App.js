@@ -2,6 +2,11 @@ import { StyleSheet, SafeAreaView, Text, Image, View, Pressable, FlatList} from 
 import { useSpotifyAuth } from "./utils";
 import Logo from "./assets/spotify-logo.png";
 import millisToMinutesAndSeconds from "./utils/millisToMinutesAndSeconds";
+import { useNavigation, NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import SongPreview from './SongPreview';
+import SongDetails from './SongDetails'
+import { Ionicons } from '@expo/vector-icons';
 
 export default function App() {
   // Pass in true to useSpotifyAuth to use the album ID (in env.js) instead of top tracks
@@ -20,61 +25,92 @@ export default function App() {
     );
   }
 
-  const showSong = ({ index }) => {
+  const showSong = ({ index, navigation }) => {
     let trackNum = tracks[index]["track_number"];
     let artistName = tracks[index]["artists"][0]["name"];
     let songName = tracks[index]["name"];
     let album = tracks[index]["album"]["name"];
     let songLen = millisToMinutesAndSeconds(tracks[index]["duration_ms"]);
     let albumImg = tracks[index]["album"]["images"][0]["url"];
+    let externalURL = tracks[index]["external_urls"].spotify;
+    let previewURL = tracks[index]["preview_url"];
     return (
-      <View style={styles.containerList}>
-        <View style={styles.trackNum}>
-          
-          <Text style={styles.whiteText}>{trackNum}</Text>
+      <View>
+            <Pressable onPress={() => {navigation.navigate('SongDetails', {externalURL: externalURL})}}>
+            <View style={styles.containerList}>
+                <View style={styles.trackNum}>
+                    <Pressable onPress={(e) => {
+                        e.stopPropagation();
+                        navigation.navigate('SongPreview', {previewURL: previewURL})
+                        }}>
+                        <Ionicons name="ios-play-circle" style={styles.trackNum} size={24} color='#1DB954' />
+                    </Pressable>
+                    </View>
+                <View>
+                <Image style={styles.albumArt} source={{ uri: albumImg }} alt="Picture"/>
+                </View>
+                <View style={styles.artist}>
+                <Text numberOfLines={1} style={styles.whiteText}>{songName}</Text>
+                <Text numberOfLines={1} style={styles.whiteText}>{artistName}</Text>
+                </View>
+                <View style={styles.album}>
+                <Text numberOfLines={1} style={styles.whiteText}>{album}</Text>
+                </View>
+                <View>
+                <Text style={styles.whiteText}>{songLen}</Text>
+                </View>
+            </View>
+            </Pressable>
         </View>
-        <View>
-          <Image style={styles.albumArt} source={{ uri: albumImg }} alt="Picture"/>
-        </View>
-        <View style={styles.artist}>
-          <Text numberOfLines={1} style={styles.whiteText}>{songName}</Text>
-          <Text numberOfLines={1} style={styles.whiteText}>{artistName}</Text>
-        </View>
-        <View style={styles.album}>
-          <Text numberOfLines={1} style={styles.whiteText}>{album}</Text>
-        </View>
-        <View>
-          <Text style={styles.whiteText}>{songLen}</Text>
-        </View>
-      </View>
+
     );
   }
 
   const List = () => {
+    const navigation = useNavigation();
     return (
       <SafeAreaView style={styles.container}>
         <View>
           <Text style={styles.title}>Midnights - Taylor Swift (Tracks)</Text>
-        </View><View>
+        </View>
+        <View>
           <FlatList
             data={tracks}
-            renderItem={(list) => showSong(list)}
+            renderItem={(list) => showSong(list, navigation)}
           /></View>
       </SafeAreaView>
     );}
 
-  let screen = null;
-  if(token) {
-    screen = <List />
-  } else {
-    screen = <Auth />
-  }
-
+    const Stack = createStackNavigator();
+  
   return (
-    <SafeAreaView style={styles.container}>
-      {screen}
-    </SafeAreaView>
-  );
+      <>
+      {token ?
+  <NavigationContainer>
+    <Stack.Navigator>
+      <Stack.Screen name="List" component={List} options={{ headerShown: false }}/>
+      <Stack.Screen name="Details" component={SongDetails} />
+      <Stack.Screen name="Preview" component={SongPreview} />
+    </Stack.Navigator>
+  </NavigationContainer>
+      : 
+      <Auth/>
+    }
+    </>
+    );
+  // let screen = null;
+  // if(token) {
+  //   screen = <List />
+  // } else {
+  //   screen = <Auth />
+  // }
+
+  // return (
+  //   <SafeAreaView style={styles.container}>
+  //     {screen}
+  //   </SafeAreaView>
+  // );
+
 }
 
 const styles = StyleSheet.create({
@@ -89,6 +125,7 @@ const styles = StyleSheet.create({
     height: 30,
     margin: 5,
     flex: 1,
+    resizeMode: 'contain'
   },
   button: {
     display: "flex",
